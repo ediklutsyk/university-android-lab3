@@ -36,12 +36,12 @@ public class ApiContentService {
     public List<AbstractContent> getContent(Callback<List<AbstractContent>> callback) {
         if (null == callback) {
             try {
-                return contentService.getContent().execute().body();
+                return contentService.getData().execute().body();
             } catch (IOException e) {
                 return null;
             }
         } else {
-            contentService.getContent().enqueue(callback);
+            contentService.getData().enqueue(callback);
             return null;
         }
     }

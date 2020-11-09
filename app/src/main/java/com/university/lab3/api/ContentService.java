@@ -10,5 +10,5 @@ import retrofit2.http.GET;
 public interface ContentService {
 
     @GET("data.json")
-    Call<List<AbstractContent>> getContent();
+    Call<List<AbstractContent>> getData();
 }
