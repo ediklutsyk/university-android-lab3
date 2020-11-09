@@ -1,4 +1,4 @@
-package com.university.lab3.item;
+package com.university.lab3.model.item;
 
 import android.view.View;
 import android.widget.TextView;

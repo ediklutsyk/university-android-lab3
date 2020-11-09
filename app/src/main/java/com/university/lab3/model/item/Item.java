@@ -1,6 +1,6 @@
-package com.university.lab3.item;
+package com.university.lab3.model.item;
 
-import com.university.lab3.Content;
+import com.university.lab3.model.Content;
 
 public class Item implements Content {
     private String title;

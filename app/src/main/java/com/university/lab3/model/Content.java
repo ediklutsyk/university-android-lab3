@@ -1,4 +1,4 @@
-package com.university.lab3;
+package com.university.lab3.model;
 
 public interface Content {
     int getType();

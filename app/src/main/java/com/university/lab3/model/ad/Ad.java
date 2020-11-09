@@ -1,6 +1,6 @@
-package com.university.lab3.annoying_ad;
+package com.university.lab3.model.ad;
 
-import com.university.lab3.Content;
+import com.university.lab3.model.Content;
 
 public class Ad implements Content {
     private String title;

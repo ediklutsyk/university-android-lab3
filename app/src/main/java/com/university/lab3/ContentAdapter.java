@@ -6,10 +6,11 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.university.lab3.annoying_ad.Ad;
-import com.university.lab3.annoying_ad.AdHolder;
-import com.university.lab3.item.Item;
-import com.university.lab3.item.ItemHolder;
+import com.university.lab3.model.Content;
+import com.university.lab3.model.ad.Ad;
+import com.university.lab3.model.ad.AdHolder;
+import com.university.lab3.model.item.Item;
+import com.university.lab3.model.item.ItemHolder;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.university.lab3.annoying_ad;
+package com.university.lab3.model.ad;
 
 import android.view.View;
 import android.widget.TextView;
