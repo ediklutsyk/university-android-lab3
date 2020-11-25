@@ -1,24 +1,21 @@
 package com.university.lab3;
 
 import android.os.Bundle;
-import android.util.Log;
+import android.widget.Button;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.university.lab3.api.ApiContentService;
-import com.university.lab3.model.Content;
+import com.university.lab3.db.ContentDataBase;
 import com.university.lab3.model.AbstractContent;
+import com.university.lab3.model.Content;
+import com.university.lab3.model.ad.Ad;
+import com.university.lab3.model.item.Item;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,34 +27,80 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Button clearBtn = findViewById(R.id.clear_db_button);
+        clearBtn.setOnClickListener(view -> {
+            contents.clear();
+            recyclerView.getAdapter().notifyDataSetChanged();
+        });
+
+        Button getFromDbBtn = findViewById(R.id.get_from_db);
+        getFromDbBtn.setOnClickListener(view -> new Thread(() -> {
+            List<Item> itemsFromDB = ContentDataBase.getDB(getApplicationContext()).contentDAO().getAllItemsFromBD();
+            contents.addAll(itemsFromDB);
+            List<Ad> adFromDB = ContentDataBase.getDB(getApplicationContext()).contentDAO().getAllAdsFromBD();
+            contents.addAll(adFromDB);
+            runOnUiThread(() -> recyclerView.getAdapter().notifyDataSetChanged());
+        }).start());
+
+        Button downloadFromApiBtn = findViewById(R.id.download_from_api);
+        downloadFromApiBtn.setOnClickListener(view -> new Thread(this::downloadContentFromApi).start());
+
+
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(new ContentAdapter(contents));
 
-        initItems();
+        downloadContentFromApi();
     }
 
-    private void initItems() {
+    private void downloadContentFromApi() {
 
-        ApiContentService.get().getContent(new Callback<List<AbstractContent>>() {
-            @Override
-            public void onResponse(@NonNull Call<List<AbstractContent>> call, @NonNull Response<List<AbstractContent>> response) {
-                if (response.isSuccessful()) {
-                    if (response.body() != null) {
-                        for (AbstractContent abstractContent : response.body()) {
-                            contents.add(abstractContent.getContent());
-                        }
-                    }
-                    Objects.requireNonNull(recyclerView.getAdapter()).notifyDataSetChanged();
+        new Thread(() -> {
+            List<AbstractContent> response = ApiContentService.get().getContent(null);
+            // ContentDataBase.getDB(getApplicationContext()).clearAllTables();
+            for (AbstractContent abstractContent : response) {
+                Content content = abstractContent.getContent();
+                switch (content.getType()) {
+                    case 1:
+                        ContentDataBase.getDB(getApplicationContext()).contentDAO().insertItem((Item) content);
+                        break;
+                    case 2:
+                        ContentDataBase.getDB(getApplicationContext()).contentDAO().insertAd((Ad) content);
+                        break;
                 }
+                contents.add(abstractContent.getContent());
             }
+            runOnUiThread(() -> recyclerView.getAdapter().notifyDataSetChanged());
+        }).start();
 
-            @Override
-            public void onFailure(@NonNull Call<List<AbstractContent>> call, @NonNull Throwable t) {
-                t.printStackTrace();
-            }
-        });
+//        ApiContentService.get().getContent(new Callback<List<AbstractContent>>() {
+//            @Override
+//            public void onResponse(@NonNull Call<List<AbstractContent>> call, @NonNull Response<List<AbstractContent>> response) {
+//                if (response.isSuccessful()) {
+//                    if (response.body() != null) {
+//                        for (AbstractContent abstractContent : response.body()) {
+//                            Content content = abstractContent.getContent();
+//                            switch (content.getType()){
+//                                case 1:
+//                                    ContentDataBase.getDB(getApplicationContext()).contentDAO().insertItem((Item) content);
+//                                    break;
+//                                case 2:
+//                                    ContentDataBase.getDB(getApplicationContext()).contentDAO().insertAd((Ad) content);
+//                                    break;
+//                            }
+//                            contents.add(abstractContent.getContent());
+//                        }
+//                    }
+//                    Objects.requireNonNull(recyclerView.getAdapter()).notifyDataSetChanged();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(@NonNull Call<List<AbstractContent>> call, @NonNull Throwable t) {
+//                t.printStackTrace();
+//            }
+//        });
 
 //        return Arrays.asList(
 //                new Item("Title1", "Message1", "01.10"),
